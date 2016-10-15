@@ -15,9 +15,7 @@ require(reshape2)
 require(ggplot2)
 ```
 
-## ----------------------------------
 ## 1: Code for reading in the dataset and/or processing the data
-## ----------------------------------
 ```{r}
 unzip("ActivityMonitorData.zip",exdir = "data")
 AMD <- read.csv("data/activity.csv", stringsAsFactors=FALSE)
@@ -28,36 +26,30 @@ str(AMD)
 ```
 
 
-## Transform data frame to prep for casting by date 
+### Transform data frame to prep for casting by date 
 ```{r}
 AMD_ETL_Date <- melt(AMD, id.vars="date", measure.vars="steps", na.rm=FALSE)
 ```
 
-## Aggregate the Activity Date 
+### Aggregate the Activity Date 
 ```{r}
 AMDFinalDate <- dcast(AMD_ETL_Date, date ~ variable, sum)
 ```
 
-## ----------------------------------
 ## 2: Histogram of the total number of steps taken each day
-## ----------------------------------
 ```{r, echo=FALSE}
 plot(AMDFinalDate$date, AMDFinalDate$steps, type="h", main="Histogram of Daily Steps", xlab="Date", ylab="Steps per Day", col="blue", lwd=8)
 ```
 
-## ----------------------------------
 ## 3: Mean and median number of steps taken each day
-## ----------------------------------
 ```{r}
 paste("Mean Steps per Day =", mean(AMDFinalDate$steps, na.rm=TRUE))
 paste("Median Steps per Day =", median(AMDFinalDate$steps, na.rm=TRUE))
 ```
 
-## ----------------------------------
 ## 4: Time series plot of the average number of steps taken
-## ----------------------------------
 
-## 1. Calculating Avg. Steps:
+### 4.1: Calculating Avg. Steps:
 ```{r}
 AMD_Interval<- AMD%>%
            group_by(interval)%>%
@@ -71,23 +63,17 @@ ggplot(AMD_Interval, aes(x =interval , y=avg_steps)) +
     labs(title = "Avg. Daily Steps", x = "Interval", y = "Avg. Steps per day")
 ```
 
-## ----------------------------------
 ## 5: The 5-minute interval that, on average, contains the maximum number of steps
-## ----------------------------------
 ```{r}
 AMD_Interval[which.max(AMD_Interval$avg_steps),]
 ```
 
-## ----------------------------------
 ## 6: Code to describe and show a strategy for imputing missing data
-## ----------------------------------
 ```{r}
 sum(is.na(AMD$steps))
 ```
 
-## ----------------------------------
 ## 7: Histogram of the total number of steps taken each day after missing values are imputed
-## ----------------------------------
 ```{r}
 AMD2<- AMD
 nas<- is.na(AMD2$steps)
@@ -96,7 +82,7 @@ AMD2$steps[nas] <- avg_interval[as.character(AMD2$interval[nas])]
 names(AMD2)
 ```
 
-## Check to see if there are any missing values
+### Check to see if there are any missing values
 ```{r}
 sum(is.na(AMD2))
 
@@ -114,7 +100,7 @@ ggplot(AMD_Total_Steps, aes(x = total_steps)) +
 
 ## 8: Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
 
-## 8.1: Create extra object to differentiate week day type
+### 8.1: Create extra object to differentiate week day type
 ```{r}
 AMD_WeekType<- AMD2%>%
                mutate(weektype= ifelse(weekdays(AMD2$date)=="Saturday" | weekdays(AMD2$date)=="Sunday", "Weekend", "Weekday"))
