@@ -1,0 +1,58 @@
+---
+title: "RP_Project_01"
+author: "S. Heffron"
+date: "Saturday, October 15, 2016"
+output: html_document
+---
+
+# Reproducible Project - Project 1
+
+
+```{r, echo=FALSE}
+require(dplyr)
+require(lubridate)
+require(reshape2)
+```
+
+### Code for reading in the dataset and/or processing the data
+```{r}
+unzip("ActivityMonitorData.zip",exdir = "data")
+
+AMD <- read.csv("data/activity.csv", stringsAsFactors=FALSE)
+#### Convert date meta data from chr to date
+AMD$date <- ymd(AMD$date)
+```
+
+#### Prepare objects for plot
+```{r}
+AMD_ETL_Date <- melt(AMD, id.vars="date", measure.vars="steps", na.rm=FALSE)
+AMDFinalDate <- dcast(AMD_ETL_Date, date ~ variable, sum)
+```
+
+#### Histogram of the total number of steps taken each day
+```{r, echo=FALSE}
+plot(AMDFinalDate$date, AMDFinalDate$steps, type="h", main="Histogram of Daily Steps", xlab="Date", ylab="Steps per Day", col="blue", lwd=8)
+```
+
+#### Mean and median number of steps taken each day
+```{r}
+paste("Mean Steps per Day =", mean(AMDFinalDate$steps, na.rm=TRUE))
+paste("Median Steps per Day =", median(AMDFinalDate$steps, na.rm=TRUE))
+```
+
+#### Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
+```{r}
+AMD_Interval <- melt(AMD, id.vars="interval", measure.vars="steps", na.rm=TRUE)
+```
+
+#### Cast data frame to see mean steps per interval
+```{r}
+AMD_Int <- dcast(AMD_Interval, interval ~ variable, mean)
+```
+
+#### Plot line chart with average frequency of steps by interval and add line with mean
+```{r, echo=FALSE}
+plot(AMD_Int$interval, AMD_Int$steps, type="l", main="Frequency of Steps Taken at Each Interval", xlab="Interval ID", ylab="Steps", col="orange", lwd=2)
+```
+
+
